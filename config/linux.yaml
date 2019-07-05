@@ -1,0 +1,32 @@
+---
+
+compile_flags:
+ - -Wall
+
+debug_compile_flags:
+ - -g
+
+link_flags:
+ - -Wall
+ 
+debug_link_flags:
+ - -Xlinker
+
+include_dirs:
+ - include/
+ - extern/
+ - extern/imgui/
+ - extern/gl3w/include/
+ - /usr/include/GL
+ - /usr/include/GLFW
+
+libs:
+ - libdl
+ - pthread
+ - GL
+ - GLU
+ - glfw
+ - GLEW
+
+lib_paths:
+ - /usr/lib

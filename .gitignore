@@ -1,0 +1,9 @@
+bin
+build
+.vscode
+.sconsign.dblite
+.mypy_cache/
+.sconsign.dblite
+vc140.pdb
+*.o
+*.obj

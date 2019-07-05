@@ -1,0 +1,34 @@
+---
+
+compile_flags:
+ - '/EHsc'
+ - '/MTd'
+
+debug_compile_flags:
+ - '/DEBUG'
+ - '/Zi'
+
+link_flags:
+
+debug_link_flags:
+ - '/DEBUG'
+
+include_dirs:
+ - include/
+ - extern/
+ - extern/imgui/
+ - extern/gl3w/include/
+ - ${EXTERNAL_LIBS}/glfw-3.2.1/include
+ - ${EXTERNAL_LIBS}/glm
+
+libs:
+ - User32.lib
+ - Gdi32.lib
+ - OpenGL32.lib
+ - kernel32.lib
+ - shell32.lib
+ - glfw3.lib
+
+lib_paths:
+ - ${WIN_KIT_DIR}/Windows Kits/10/Lib/10.0.14393.0/um/x64/
+ - ${EXTERNAL_LIBS}/glfw-3.2.1/
