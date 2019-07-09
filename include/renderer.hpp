@@ -16,6 +16,9 @@
 
 #include "graphics.hpp"
 #include "interface.hpp"
+#include "terrain.hpp"
+#include "arcball.hpp"
+
 
 class GraphicsOpenGL: public Graphics {
 private:
@@ -27,8 +30,18 @@ private:
     bool create_window(int width, int height);
     void init();
 
+    Terrain* terrain;
+
+    GLuint program;
+
 public:
-    void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	
+    static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+    static void mouse_cursor_callback(GLFWwindow* window, double xpos, double ypos);
+    static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+    static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void resize_callback(GLFWwindow* window, int newWidth, int newHeight);
+
     void new_frame();
     bool start();
     void exit();

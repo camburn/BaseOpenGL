@@ -7,3 +7,4 @@ build
 vc140.pdb
 *.o
 *.obj
+imgui.ini

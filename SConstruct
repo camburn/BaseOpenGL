@@ -57,7 +57,8 @@ if mode == 'debug':
     )
 
 # Need to work out when this is appropriate
-#env.Append(CPPDEFINES=['GL_CORE_PROFILE'])
+if 'GL_CORE_PROFILE' in os.environ:
+    env.Append(CPPDEFINES=['GL_CORE_PROFILE'])
 env.VariantDir('build', 'src', duplicate=0)
 env.Program(
     'bin/MyProject',

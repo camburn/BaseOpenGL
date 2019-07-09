@@ -9,8 +9,6 @@ int main(int argc, char *argv[]) {
     Graphics *graphics = new GraphicsOpenGL {};
     graphics->start();
 
-    Terrain *terrain = new Terrain{10, 10};
-
     while (graphics->running) {
         graphics->new_frame();
     };

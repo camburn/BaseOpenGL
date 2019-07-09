@@ -3,6 +3,11 @@
 #include <string>
 #include <vector>
 
+#ifdef GL_CORE_PROFILE
+#include <GL/gl3w.h>
+#else
+#include <GL/glew.h>
+#endif
 
 class Graphics {
 public:
