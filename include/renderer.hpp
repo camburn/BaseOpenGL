@@ -18,6 +18,7 @@
 #include "interface.hpp"
 #include "terrain.hpp"
 #include "arcball.hpp"
+#include "erode.hpp"
 
 
 class GraphicsOpenGL: public Graphics {
@@ -33,6 +34,7 @@ private:
     Terrain* terrain;
 
     GLuint program;
+    int terrain_data_size;
 
 public:
 	
@@ -44,6 +46,7 @@ public:
 
     void new_frame();
     bool start();
+    void set_terrain_data(int size);
     void exit();
 };
 

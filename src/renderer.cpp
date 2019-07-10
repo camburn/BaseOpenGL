@@ -31,7 +31,7 @@ void GraphicsOpenGL::scroll_callback(GLFWwindow* window, double xoffset, double 
 }
 
 void GraphicsOpenGL::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-}
+    }
 
 void GraphicsOpenGL::resize_callback(GLFWwindow* window, int newWidth, int newHeight) {
 }
@@ -109,6 +109,7 @@ void GraphicsOpenGL::new_frame() {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         running = false;
 
+
     interface::new_frame();
 
     glfwMakeContextCurrent(window);
@@ -116,13 +117,15 @@ void GraphicsOpenGL::new_frame() {
     glViewport(0, 0, width, height);
     glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
     glClear(GL_COLOR_BUFFER_BIT);
+    glFrontFace(GL_CW);
+    glEnable(GL_CULL_FACE);
 
     // Custom Renders
     glUseProgram(program);
-    glFrontFace(GL_CCW);
+    
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -5.0f));
+    model = glm::translate(model, glm::vec3(-2.5f, 0.0f, -2.5f));
     glm::mat4 view = glm::mat4(1.0f);
     view = glm::lookAt(
         glm::vec3(5.0f, 5.0f, 5.0f), // Camera Position
@@ -131,7 +134,7 @@ void GraphicsOpenGL::new_frame() {
     );
     view = view * arcball.createViewRotationMatrix();
     glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(90, 1920/1080, 1, 100);
+    projection = glm::perspective(70.0f, (float)1920/1080, 1.0f, 100.0f);
     
     glm::vec4 color = glm::vec4(1.0f);
 
@@ -157,13 +160,15 @@ bool GraphicsOpenGL::start() {
     }
     interface::start(window);
 
-  
-
     program = BuildGlProgram("./shaders/vertex.glsl", "./shaders/fragment.glsl");
     glUseProgram(program);
-    terrain = new Terrain{10, 10};
-
+    
     return true;
+}
+
+void GraphicsOpenGL::set_terrain_data(int size) {
+    terrain = new Terrain{ size };
+    interface::set_terrain(terrain);
 }
 
 void GraphicsOpenGL::exit() {

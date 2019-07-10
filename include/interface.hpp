@@ -1,3 +1,4 @@
+#include <string>
 #include "imgui.h"
 
 #include "imgui_impl_glfw.h"
@@ -9,6 +10,8 @@
 #include "imgui_impl_opengl2.h"
 #endif
 
+#include "terrain.hpp"
+
 namespace interface {
 
 void start(GLFWwindow* windows);
@@ -18,6 +21,8 @@ void new_frame();
 void draw();
 
 void exit();
+
+void set_terrain(Terrain *terrain);
 
 }
 

@@ -5,7 +5,8 @@ namespace interface {
 const char* glsl_version = "#version 130";
 bool show_demo_window = true;
 bool show_overlay = true;
-
+bool show_terrain_controls = true;
+Terrain *terrain;
 
 static void overlay(bool* p_open){
     const float DISTANCE = 10.0f;
@@ -28,6 +29,31 @@ static void overlay(bool* p_open){
             ImGui::Text("Mouse Position: <invalid>");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             
+    }
+    ImGui::End();
+}
+void set_terrain(Terrain *terrain_to_set) {
+    terrain = terrain_to_set;
+}
+
+static void terrain_controls(bool *p_open) {
+    static int clicked = 0;
+    if (ImGui::Begin("Terrain Controls", p_open, 0)) {
+        ImGui::LabelText("Total Iterations", std::to_string(terrain->erosian_iterations).c_str());
+
+        if (ImGui::Button("Erode"))
+            clicked++;
+        static float f0 = 1000.0f;
+        ImGui::SameLine();
+        ImGui::InputFloat("Iterations", &f0, 1.0f, 100.0f, "%.3f");
+
+        if (clicked & 1)
+        {
+            ImGui::Text("Eroding Mesh!");
+            if (f0 > 0.0f)
+                terrain->erode_mesh(f0);
+            clicked = 0;
+        }
     }
     ImGui::End();
 }
@@ -72,6 +98,8 @@ void draw() {
         ImGui::ShowDemoWindow(&show_demo_window);
     if (show_overlay)
         overlay(&show_overlay);
+    if (show_terrain_controls)
+        terrain_controls(&show_terrain_controls);
     ImGui::Render();
     #ifdef GL_CORE_PROFILE
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

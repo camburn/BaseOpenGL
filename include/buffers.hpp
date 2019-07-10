@@ -30,6 +30,8 @@ public:
 };
 
 GLuint BufferMeshDataV(std::vector<glm::vec3> vertices);
+GLuint BufferMeshDataV(glm::vec3 vertices[], const int size);
+void UpdateMeshDataV(glm::vec3 *vertices, const int size);
 GLuint LoadShader(std::string file_path, GLuint ShaderID);
 GLuint BuildGlProgram(std::string vertex_file_path, std::string fragment_file_path);
 
