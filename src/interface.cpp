@@ -98,12 +98,13 @@ void draw() {
         ImGui::ShowDemoWindow(&show_demo_window);
     if (show_overlay)
         overlay(&show_overlay);
-    //if (show_terrain_controls)
-    //    terrain_controls(&show_terrain_controls);
+    if (show_terrain_controls)
+        terrain_controls(&show_terrain_controls);
     ImGui::Render();
     #ifdef GL_CORE_PROFILE
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     #else
+    glUseProgram(0);
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
     #endif
 }

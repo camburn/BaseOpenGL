@@ -8,7 +8,7 @@ enum GLFW_ERRORS {
     GLXBadFBConfig = 65543
 };
 
-
+glm::vec3 camera_position = glm::vec3(5.0f, 5.0f, 5.0f);
 
 
 void glfw_error_callback(int error, const char* description) {
@@ -28,6 +28,16 @@ void GraphicsOpenGL::mouse_cursor_callback(GLFWwindow* window, double xpos, doub
 }
 
 void GraphicsOpenGL::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    camera_position.y += yoffset;
+    camera_position.x += yoffset / 2;
+    camera_position.z += yoffset / 2;
+
+    if (camera_position.x < 3.0f)
+        camera_position.x = 3.0f;
+    if (camera_position.y < 0.0f)
+        camera_position.y = 0.0f;
+    if (camera_position.z < 3.0f)
+        camera_position.z = 3.0f;
 }
 
 void GraphicsOpenGL::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -113,10 +123,9 @@ void GraphicsOpenGL::new_frame() {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         running = false;
 
-
     interface::new_frame();
 
-    glfwMakeContextCurrent(window);
+    //glfwMakeContextCurrent(window);
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
     glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
@@ -131,14 +140,14 @@ void GraphicsOpenGL::new_frame() {
     model = glm::translate(model, glm::vec3(-2.5f, 0.0f, -2.5f));
     glm::mat4 view = glm::mat4(1.0f);
     view = glm::lookAt(
-        glm::vec3(5.0f, 5.0f, 5.0f), // Camera Position
+        camera_position,
         glm::vec3(0.0f, 0.0f, 0.0f), // Looking at
         glm::vec3(0.0f, 1.0f, 0.0f)  // Up
     );
     view = view * arcball.createViewRotationMatrix();
     glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(70.0f, (float)1920/1080, 1.0f, 100.0f);
-    
+    projection = glm::perspective(70.0f, (float)width/height, 1.0f, 100.0f);
+
     glm::vec4 color = glm::vec4(1.0f);
 
     GLuint loc_model = glGetUniformLocation(program, "model");
@@ -150,10 +159,11 @@ void GraphicsOpenGL::new_frame() {
     glUniformMatrix4fv(loc_proj, 1, GL_FALSE, &projection[0][0]);
     glUniform4f(loc_color, color.x, color.y, color.z, color.w);
 
-    //terrain->draw();
+    terrain->draw();
 
     // IMGUI Interface
     interface::draw();
+
     glfwSwapBuffers(window);
 }
 
