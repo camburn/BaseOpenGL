@@ -51,8 +51,11 @@ void GraphicsOpenGL::init() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     //Disable legacy OpenGL
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); 
+    #else
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     #endif
-   
+
     //Debugging
     std::cout << "INFO:: OpenGL debugging on" << std::endl;
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
@@ -86,6 +89,7 @@ bool GraphicsOpenGL::create_window(int width, int height) {
         glfwTerminate();
         std::exit(1);
     }
+    std::cout << "OpenGL version: " << glGetString(GL_VERSION);
     #endif
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
@@ -122,7 +126,6 @@ void GraphicsOpenGL::new_frame() {
 
     // Custom Renders
     glUseProgram(program);
-    
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(-2.5f, 0.0f, -2.5f));
@@ -147,7 +150,7 @@ void GraphicsOpenGL::new_frame() {
     glUniformMatrix4fv(loc_proj, 1, GL_FALSE, &projection[0][0]);
     glUniform4f(loc_color, color.x, color.y, color.z, color.w);
 
-    terrain->draw();
+    //terrain->draw();
 
     // IMGUI Interface
     interface::draw();
@@ -159,8 +162,11 @@ bool GraphicsOpenGL::start() {
         return false;
     }
     interface::start(window);
-
-    program = BuildGlProgram("./shaders/vertex.glsl", "./shaders/fragment.glsl");
+    #ifdef GL_CORE_PROFILE
+    program = BuildGlProgram("./shaders/vertex330.glsl", "./shaders/fragment330.glsl");
+    #else
+    program = BuildGlProgram("./shaders/vertex120.glsl", "./shaders/fragment120.glsl");
+    #endif
     glUseProgram(program);
     
     return true;

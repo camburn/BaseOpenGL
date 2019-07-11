@@ -51,7 +51,6 @@ void calc_brush_indices(int mapsize, int radius) {
     int brush_indices_length = mapsize * mapsize;
 
     brush_weights = new float*[mapsize * mapsize];
-    int brush_weights_length = mapsize * mapsize;
 
     int *x_offsets = new int[radius * radius * 4];
     int *y_offsets = new int[radius * radius * 4];
@@ -98,9 +97,9 @@ void calc_brush_indices(int mapsize, int radius) {
         }
     }
 
-    delete x_offsets;
-    delete y_offsets;
-    delete weights;
+    delete[] x_offsets;
+    delete[] y_offsets;
+    delete[] weights;
 }
 
 void erode(glm::vec3 data[], int size, const int iterations) {
@@ -141,8 +140,6 @@ void erode(glm::vec3 data[], int size, const int iterations) {
                 dir_y /= len;
             }
 
-            float old_x = pos_x;
-            float old_y = pos_y;
             pos_x += dir_x;
             pos_y += dir_y;
             if ((dir_x == 0 && dir_y == 0) || pos_x < 0 || pos_x >= size - 1 || pos_y < 0 || pos_y >= size - 1) {
@@ -158,7 +155,6 @@ void erode(glm::vec3 data[], int size, const int iterations) {
                 float amount_to_deposit = (delta_height > 0) ? std::min(delta_height, sediment) : (sediment - sediment_capacity) * DEPOSIT_SPEED;
                 sediment -= amount_to_deposit;
 
-                // TODO: This is most likely incorrect due to coordinate differences
                 data[droplet_index].y += amount_to_deposit * (1 - cell_offset_x) * (1 - cell_offset_y);
                 data[droplet_index + 1].y += amount_to_deposit * cell_offset_x * (1 - cell_offset_y);
                 data[droplet_index + size].y += amount_to_deposit * (1 - cell_offset_x) * cell_offset_y;
@@ -166,7 +162,6 @@ void erode(glm::vec3 data[], int size, const int iterations) {
             } else {
                 float amount_to_erode = std::min((sediment_capacity - sediment) * ERODE_SPEED, -delta_height);
 
-                // TODO: What is erosion_brush_indices?
                 for (int brush_point_index = 0; brush_point_index < brush_indices_sizes[droplet_index]; brush_point_index++) {
                     int node_index = brush_indices[droplet_index][brush_point_index];
                     float weighedErodeAmount = amount_to_erode * brush_weights[droplet_index][brush_point_index];
@@ -180,8 +175,6 @@ void erode(glm::vec3 data[], int size, const int iterations) {
                 speed = 0.0f;
             else
                 speed = std::sqrt(speed * speed + delta_height * GRAVITY);
-            if (isnan(speed))
-                std::cout << "ERROR" << std::endl;
             water *= (1 - EVAPORATE_SPEED);
         }
     }

@@ -39,7 +39,7 @@ void set_terrain(Terrain *terrain_to_set) {
 static void terrain_controls(bool *p_open) {
     static int clicked = 0;
     if (ImGui::Begin("Terrain Controls", p_open, 0)) {
-        ImGui::LabelText("Total Iterations", std::to_string(terrain->erosian_iterations).c_str());
+        ImGui::LabelText("Total Iterations ", std::to_string(terrain->erosian_iterations).c_str());
 
         if (ImGui::Button("Erode"))
             clicked++;
@@ -98,8 +98,8 @@ void draw() {
         ImGui::ShowDemoWindow(&show_demo_window);
     if (show_overlay)
         overlay(&show_overlay);
-    if (show_terrain_controls)
-        terrain_controls(&show_terrain_controls);
+    //if (show_terrain_controls)
+    //    terrain_controls(&show_terrain_controls);
     ImGui::Render();
     #ifdef GL_CORE_PROFILE
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

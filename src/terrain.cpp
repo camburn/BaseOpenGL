@@ -16,7 +16,7 @@ glm::vec3 calc_normal(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
 }
 
 
-inline void push_back(glm::vec3 vertices[], int &counter, glm::vec3 &v) {
+inline void push_back(glm::vec3 vertices[], int &counter, glm::vec3 v) {
     vertices[counter] = v;
     counter++;
 }

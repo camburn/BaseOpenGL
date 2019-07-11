@@ -39,8 +39,8 @@ public:
     ~Terrain();
 
     void buffer_data();
-    void Terrain::generate_mesh();
-    void Terrain::erode_mesh(const int iterations);
+    void generate_mesh();
+    void erode_mesh(const int iterations);
 
     void draw();
 
