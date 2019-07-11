@@ -20,12 +20,12 @@
 #include "imgui.h"
 
 
-struct RGB{
-    RGB():r(0), b(0), g(0), a(0){}
-    RGB(unsigned char r, unsigned char b, unsigned char g):
-        r(r), b(b), g(g), a(255){}
-    RGB(unsigned char r, unsigned char b, unsigned char g, unsigned char a):
-        r(r), b(b), g(g), a(a){}
+class Color {
+public:
+    Color() : r(0), b(0), g(0), a(0) {}
+    Color(unsigned char x) : r(x), b(x), g(x), a(255) {}
+    Color(unsigned char r, unsigned char b, unsigned char g): r(r), b(b), g(g), a(255){}
+    Color(unsigned char r, unsigned char b, unsigned char g, unsigned char a): r(r), b(b), g(g), a(a){}
     unsigned char r, b, g, a;
 };
 
@@ -40,6 +40,24 @@ private:
 
 };
 
+//template < int ARRAY_LEN >
+class Noise{
+public:
+    Noise(): data(new Color[1]) {}
+    Noise(int size, FastNoise noise, float weight) : size(size), noise(noise), weight(weight), data(new Color[size * size]) {}
+    ~Noise() { } //TODO: Memory leak - data
+    float GetNoise(int x, int y) { return noise.GetNoise(x, y); }
+
+    Color *data;
+    int size;
+    //std::array<Color, size>
+    float weight;
+    bool added_image = false;
+private:
+    FastNoise noise;
+    
+};
+
 class Terrain {
 /*
 A Flat mesh
@@ -52,11 +70,13 @@ private:
     int size;
     
     GLuint vao = 0;
-    RGB *image_data;
+    Color *image_data;
 
+    std::vector<Noise> noises;
     std::vector<Texture> images;
     Texture *preview_image_data = nullptr;
     void preview_image(FastNoise noise);
+    void add_image(FastNoise noise);
 
 public:
     GLuint image_id = 0;

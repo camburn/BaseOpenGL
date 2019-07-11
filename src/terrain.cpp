@@ -76,7 +76,7 @@ void Terrain::preview_image(FastNoise noise) {
         glDeleteTextures(1, &preview_image_data->texture_id);
         delete preview_image_data;
     }
-    RGB *image_data = new RGB[size*size];
+    Color *image_data = new Color[size*size];
     for (int y = 0; y < size; ++y)
     {
         for (int x = 0; x < size; ++x)
@@ -87,7 +87,7 @@ void Terrain::preview_image(FastNoise noise) {
             unsigned char green = (unsigned char)(scaled * 255);
             unsigned char blue = (unsigned char)(scaled * 255);
 
-            image_data[y * size + x] = RGB(red, green, blue);
+            image_data[y * size + x] = Color(red, green, blue);
         }
     }
     preview_image_data = new Texture{"Combined", size,
@@ -97,18 +97,23 @@ void Terrain::preview_image(FastNoise noise) {
     delete image_data;
 }
 
+void Terrain::add_image(FastNoise noise) {
+    //noises.push_back(noise);
+}
 
 void Terrain::generate_mesh() {
     int size = 512;
 
-    image_data = new RGB[size*size];
+    image_data = new Color[size*size];
 
     calc_brush_indices(size, 3);
 
     const int seed = 1337;
     const int octaves = 1;
 
+
     std::cout << "Generating mesh data" << std::endl;
+    /*
     FastNoise big_noise;
     big_noise.SetNoiseType(FastNoise::SimplexFractal);
     big_noise.SetInterp(FastNoise::Quintic);
@@ -117,8 +122,8 @@ void Terrain::generate_mesh() {
     big_noise.SetFractalGain(0.5f);
     big_noise.SetFractalLacunarity(2.0f);
     big_noise.SetFractalOctaves(octaves);
-    RGB *image_data_big = new RGB[size*size];
-    RGB *image_data_combined = new RGB[size*size];
+    Color *image_data_big = new Color[size*size];
+    
 
     FastNoise small_noise;
     small_noise.SetNoiseType(FastNoise::SimplexFractal);
@@ -128,37 +133,68 @@ void Terrain::generate_mesh() {
     small_noise.SetFractalGain(0.3f);
     small_noise.SetFractalLacunarity(2.0f);
     small_noise.SetFractalOctaves(8);
+5
+    /std::vector<glm::vec3*> raw_data;
+    */
 
     data = new glm::vec3[size * size];
+    Color *image_data_combined = new Color[size*size];
 
     for (int y = 0; y < size; ++y)
     {
         for (int x = 0; x < size; ++x)
         {
+            float height = 0.0f;
+            for (auto noise: noises) {
+                float sample = noise.GetNoise(x, y);
+                float scaled = (sample + 1.0f) / 2;
+                float weighted = scaled * noise.weight;
+                unsigned char red, green, blue = (unsigned char)(scaled * 255);
+
+                noise.data[y * size + x] = Color((unsigned char)(scaled * 255));
+                image_data_combined[y * size + x] = Color((unsigned char)(weighted * 255));
+                height += weighted;
+            }
+
+            data[y * size + x] = glm::vec3{ (float)x, height, (float)y };
+            /*
+
             float sample_big = big_noise.GetNoise(x, y);
             float sample_small = small_noise.GetNoise(x, y);
             float scaled_big = (sample_big + 1.0f) / 2;
             float scaled_small = (sample_small + 1.0f) / 2;
             float height = (scaled_big * 0.9) + (scaled_small * 0.1);
-            data[y * size + x] = glm::vec3{ (float)x, height, (float)y };
+
+            
             unsigned char red = (unsigned char)(scaled_small * 255);
             unsigned char green = (unsigned char)(scaled_small * 255);
             unsigned char blue = (unsigned char)(scaled_small * 255);
 
-            image_data[y * size + x] = RGB(red, green, blue);
+            image_data[y * size + x] = Color(red, green, blue);
 
             red = (unsigned char)(scaled_big * 255);
             green = (unsigned char)(scaled_big * 255);
             blue = (unsigned char)(scaled_big * 255);
-            image_data_big[y * size + x] = RGB(red, green, blue);
+            image_data_big[y * size + x] = Color(red, green, blue);
 
             red = (unsigned char)(height * 255);
             green = (unsigned char)(height * 255);
             blue = (unsigned char)(height * 255);
-            image_data_combined[y * size + x] = RGB(red, green, blue);
+            image_data_combined[y * size + x] = Color(red, green, blue);
+            */
         }
     }
 
+    for (auto noise : noises) {
+        //TODO: Can add the same image!
+        if (!noise.added_image) {
+            images.emplace_back("Small features", size,
+                BufferTextureDataRGB((unsigned char *)noise.data, size, size)
+            );
+            noise.added_image = true;
+        }
+    }
+    /*
     images.emplace_back("Small features", size, 
         BufferTextureDataRGB((unsigned char *)image_data, size, size)
     );
@@ -172,6 +208,7 @@ void Terrain::generate_mesh() {
     );
 
     delete image_data_big;
+    */
     delete image_data_combined;
 }
 
@@ -261,6 +298,7 @@ void Terrain::interface() {
         ImGui::Text("Terrain Controls description");
         if (ImGui::TreeNode("Erosion")) {
             ImGui::Text("Total Iterations ", std::to_string(erosian_iterations).c_str());
+            ImGui::Text("Total noises ", std::to_string(noises.size()).c_str());
 
             if (ImGui::Button("Erode"))
                 clicked++;
@@ -296,6 +334,7 @@ void Terrain::interface() {
     { // Texture Generator
         static int add_clicked = 0;
         static int preview_clicked = 0;
+        static float weight = 1.0f;
         static float frequency = 0.02f;
         static int fractal_octaves = 8;
         static int seed = 1337;
@@ -307,6 +346,7 @@ void Terrain::interface() {
             return;
         }
 
+        ImGui::InputFloat("Weight", &weight, 0.1f, 0.25f, "%.5f");
         ImGui::InputFloat("Frequency", &frequency, 0.001f, 0.01f, "%.5f");
         ImGui::InputInt("Fractal Octaves", &fractal_octaves, 1, 2);
         ImGui::InputInt("Seed", &seed);
@@ -355,7 +395,16 @@ void Terrain::interface() {
             preview_clicked = 0;
         }
         if (add_clicked & 1) {
-            
+            FastNoise noise = create_noise(
+                frequency, fractal_octaves, seed, fractal_gain, fractal_lacunarity,
+                NOISE_MAP[std::string(item_current)]
+            );
+            noises.emplace_back(
+                size, noise, weight
+            );
+            add_clicked = 0;
+            generate_mesh();
+            buffer_data();
         }
 
         if (preview_image_data != nullptr) {

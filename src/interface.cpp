@@ -32,6 +32,7 @@ static void overlay(bool* p_open){
     }
     ImGui::End();
 }
+
 void set_terrain(Terrain *terrain_to_set) {
     terrain = terrain_to_set;
 }

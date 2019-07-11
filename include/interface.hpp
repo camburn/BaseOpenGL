@@ -27,4 +27,3 @@ bool controls_io();
 void set_terrain(Terrain *terrain);
 
 }
-
