@@ -93,6 +93,12 @@ void new_frame() {
     ImGui::NewFrame();
 }
 
+bool controls_io(){
+    if (ImGui::GetIO().WantCaptureMouse || ImGui::GetIO().WantCaptureKeyboard)
+        return true;
+    return false;
+}
+
 void draw() {
     if (show_demo_window)
         ImGui::ShowDemoWindow(&show_demo_window);

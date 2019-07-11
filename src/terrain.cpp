@@ -61,6 +61,8 @@ void Terrain::generate_mesh() {
     big_noise.SetFractalGain(0.5f);
     big_noise.SetFractalLacunarity(2.0f);
     big_noise.SetFractalOctaves(octaves);
+    RGB *image_data_big = new RGB[size*size];
+    RGB *image_data_combined = new RGB[size*size];
 
     FastNoise small_noise;
     small_noise.SetNoiseType(FastNoise::SimplexFractal);
@@ -88,8 +90,28 @@ void Terrain::generate_mesh() {
             unsigned char blue = (unsigned char)(scaled_small * 255);
 
             image_data[y * size + x] = RGB(red, green, blue);
+
+            red = (unsigned char)(scaled_big * 255);
+            green = (unsigned char)(scaled_big * 255);
+            blue = (unsigned char)(scaled_big * 255);
+            image_data_big[y * size + x] = RGB(red, green, blue);
+
+            red = (unsigned char)(height * 255);
+            green = (unsigned char)(height * 255);
+            blue = (unsigned char)(height * 255);
+            image_data_combined[y * size + x] = RGB(red, green, blue);
         }
     }
+
+    image_id = BufferTextureDataRGB((unsigned char *)image_data, size, size);
+    images.push_back(image_id);
+    image_id = BufferTextureDataRGB((unsigned char *)image_data_big, size, size);
+    images.push_back(image_id);
+    image_id = BufferTextureDataRGB((unsigned char *)image_data_combined, size, size);
+    images.push_back(image_id);
+
+    delete image_data_big;
+    delete image_data_combined;
 }
 
 void Terrain::buffer_data() {
@@ -157,7 +179,7 @@ void Terrain::buffer_data() {
     vertices_size = array_size / 3;
     delete[] verts;
 
-    image_id = BufferTextureDataRGB((unsigned char *)image_data, size, size);
+    
 }
 
 void Terrain::draw() {
@@ -194,23 +216,20 @@ void Terrain::interface() {
         ImGui::TreePop();
     }
     if (ImGui::TreeNode("Generation")) {
-        ImGui::Text("Eroding Mesh!");
-        ImGui::TreePop();
+        ImGui::Text("Texture base hightmaps");
         
         if (image_id != 0) {
-            ImTextureID id = &image_id;
-            ImGui::Image(id, ImVec2(256, 256));
-
+            int counter = 1;
+            for (auto image_id: images) {
+                if (ImGui::TreeNode(("Texture" + std::to_string(counter)).c_str() )) {
+                    ImGui::Image((void*)(intptr_t)image_id, ImVec2(256, 256));
+                    ImGui::TreePop();
+                }
+                counter++;
+            }
         }
-        // Displpay perlin texture
-        //
-        // ImTextureID my_tex_id = io.Fonts->TexID;
-        // float my_tex_w = (float)io.Fonts->TexWidth;
-        // float my_tex_h = (float)io.Fonts->TexHeight;
-        // ImGui::Text("%.0fx%.0f", my_tex_w, my_tex_h);
-        // ImVec2 pos = ImGui::GetCursorScreenPos();
-        // ImGui::Image(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0,0), 
-        //    ImVec2(1,1), ImColor(255,255,255,255), ImColor(255,255,255,128));
+        ImGui::TreePop();
+
     }
     ImGui::End();
 }

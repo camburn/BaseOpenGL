@@ -42,6 +42,8 @@ private:
     GLuint vao = 0;
     RGB *image_data;
 
+    std::vector<GLuint> images;
+
 public:
     GLuint image_id = 0;
     int erosian_iterations = 0;

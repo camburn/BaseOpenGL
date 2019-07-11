@@ -20,14 +20,17 @@ void glfw_error_callback(int error, const char* description) {
 }
 
 void GraphicsOpenGL::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (interface::controls_io()) return;
     arcball.mouseButtonCallback(window, button, action, mods);
 }
 
 void GraphicsOpenGL::mouse_cursor_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (interface::controls_io()) return;
     arcball.cursorCallback(window, xpos, ypos);
 }
 
 void GraphicsOpenGL::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    if (interface::controls_io()) return;
     camera_position.y += yoffset;
     camera_position.x += yoffset / 2;
     camera_position.z += yoffset / 2;
