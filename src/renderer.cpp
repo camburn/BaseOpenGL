@@ -130,7 +130,7 @@ void GraphicsOpenGL::new_frame() {
     glViewport(0, 0, width, height);
     glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
     glClear(GL_COLOR_BUFFER_BIT);
-    glFrontFace(GL_CW);
+    //glFrontFace(GL_CW);
     glEnable(GL_CULL_FACE);
 
     // Custom Renders

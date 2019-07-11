@@ -41,7 +41,6 @@ void Terrain::erode_mesh(const int iterations) {
 }
 
 void Terrain::generate_mesh() {
-
     int size = 512;
 
     calc_brush_indices(size, 3);
@@ -94,8 +93,6 @@ void Terrain::buffer_data() {
     int c = 0;
     for (int y = 0; y < size; ++y) {
         for (int x = 0; x < size; ++x) {
-
-            // Remove me?
             if (x != size - 1 && y != size - 1) {
 
                 int index = y * size + x;
@@ -108,16 +105,16 @@ void Terrain::buffer_data() {
                 );
 
                 // Construct the triangles
-                push_back(verts, c, data[index] * scale);
-                push_back(verts, c, glm::vec3(1.0f, 0.0f, 0.0f));// Barymetric
+                push_back(verts, c, data[index + size] * scale);
+                push_back(verts, c, glm::vec3(0.0f, 0.0f, 1.0f));// Barymetric
                 push_back(verts, c, normal);
 
                 push_back(verts, c, data[index + 1] * scale);
                 push_back(verts, c, glm::vec3(0.0f, 1.0f, 0.0f));// Barymetric
                 push_back(verts, c, normal);
 
-                push_back(verts, c, data[index + size] * scale);
-                push_back(verts, c, glm::vec3(0.0f, 0.0f, 1.0f));// Barymetric
+                push_back(verts, c, data[index] * scale);
+                push_back(verts, c, glm::vec3(1.0f, 0.0f, 0.0f));// Barymetric
                 push_back(verts, c, normal);
 
                 normal = glm::triangleNormal(
@@ -126,16 +123,16 @@ void Terrain::buffer_data() {
                     data[index + size + 1] * scale
                 );
 
-                push_back(verts, c, data[index + size + 1] * scale);
-                push_back(verts, c, glm::vec3(1.0f, 0.0f, 0.0f));// Barymetric
+                push_back(verts, c, data[index + 1] * scale);
+                push_back(verts, c, glm::vec3(0.0f, 0.0f, 1.0f));// Barymetric
                 push_back(verts, c, normal);
 
                 push_back(verts, c, data[index + size] * scale);
                 push_back(verts, c, glm::vec3(0.0f, 1.0f, 0.0f));// Barymetric
                 push_back(verts, c, normal);
 
-                push_back(verts, c, data[index + 1] * scale);
-                push_back(verts, c, glm::vec3(0.0f, 0.0f, 1.0f));// Barymetric
+                push_back(verts, c, data[index + size + 1] * scale);
+                push_back(verts, c, glm::vec3(1.0f, 0.0f, 0.0f));// Barymetric
                 push_back(verts, c, normal);
             }
         }
@@ -148,9 +145,8 @@ void Terrain::buffer_data() {
     else {
         vao = BufferMeshDataV(verts, array_size);
     }
-    
     vertices_size = array_size / 3;
-    delete verts;
+    delete[] verts;
 }
 
 void Terrain::draw() {
