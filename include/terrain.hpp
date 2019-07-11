@@ -16,8 +16,17 @@
 #include "buffers.hpp"
 #include "erode.hpp"
 #include "FastNoise.hpp"
+#include "imgui.h"
 
 
+struct RGB{
+    RGB():r(0), b(0), g(0), a(0){}
+    RGB(unsigned char r, unsigned char b, unsigned char g):
+        r(r), b(b), g(g), a(255){}
+    RGB(unsigned char r, unsigned char b, unsigned char g, unsigned char a):
+        r(r), b(b), g(g), a(a){}
+    unsigned char r, b, g, a;
+};
 
 class Terrain {
 /*
@@ -29,9 +38,12 @@ private:
     int width;
     int height;
     int size;
-    GLuint vao = -1;
+    
+    GLuint vao = 0;
+    RGB *image_data;
 
 public:
+    GLuint image_id = 0;
     int erosian_iterations = 0;
     Terrain(int width, int height);
     Terrain(glm::vec3 data[], int size);
@@ -42,6 +54,7 @@ public:
     void generate_mesh();
     void erode_mesh(const int iterations);
 
+    void interface();
     void draw();
 
 };

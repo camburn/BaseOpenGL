@@ -162,6 +162,9 @@ void GraphicsOpenGL::new_frame() {
     terrain->draw();
 
     // IMGUI Interface
+    glBindTexture(GL_TEXTURE_2D, terrain->image_id);
+
+    terrain->interface();
     interface::draw();
 
     glfwSwapBuffers(window);

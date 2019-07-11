@@ -2,6 +2,7 @@
 #include "erode.hpp"
 
 
+
 glm::vec3 calc_normal(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) {
     glm::vec3 U = p2 - p1;
     glm::vec3 V = p3 - p1;
@@ -32,6 +33,7 @@ Terrain::Terrain(int size): size(size) {
 
 Terrain::~Terrain() {
     delete data;
+    delete image_data;
 }
 
 void Terrain::erode_mesh(const int iterations) {
@@ -42,6 +44,8 @@ void Terrain::erode_mesh(const int iterations) {
 
 void Terrain::generate_mesh() {
     int size = 512;
+
+    image_data = new RGB[size*size];
 
     calc_brush_indices(size, 3);
 
@@ -79,6 +83,11 @@ void Terrain::generate_mesh() {
             float scaled_small = (sample_small + 1.0f) / 2;
             float height = (scaled_big * 0.9) + (scaled_small * 0.1);
             data[y * size + x] = glm::vec3{ (float)x, height, (float)y };
+            unsigned char red = (unsigned char)(scaled_small * 255);
+            unsigned char green = (unsigned char)(scaled_small * 255);
+            unsigned char blue = (unsigned char)(scaled_small * 255);
+
+            image_data[y * size + x] = RGB(red, green, blue);
         }
     }
 }
@@ -139,7 +148,7 @@ void Terrain::buffer_data() {
     }
     std::cout << "Created Triangles" << std::endl;
 
-    if (vao != -1) {
+    if (vao != 0) {
         UpdateMeshDataV(verts, array_size);
     }
     else {
@@ -147,10 +156,61 @@ void Terrain::buffer_data() {
     }
     vertices_size = array_size / 3;
     delete[] verts;
+
+    image_id = BufferTextureDataRGB((unsigned char *)image_data, size, size);
 }
 
 void Terrain::draw() {
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, vertices_size);
     glBindVertexArray(0);
-} 
+}
+
+void Terrain::interface() {
+    //TODO: move to class members
+    static bool p_open = true;
+    static int clicked = 0;
+    static float f0 = 1000.0f;
+    if (!ImGui::Begin("Terrain Controls", &p_open, 0)) {
+        ImGui::End();
+        return;
+    }
+    ImGui::Text("Terrain Controls description");
+    if (ImGui::TreeNode("Erosion")) {
+        ImGui::Text("Total Iterations ", std::to_string(erosian_iterations).c_str());
+
+        if (ImGui::Button("Erode"))
+            clicked++;
+        ImGui::SameLine();
+        ImGui::InputFloat("Iterations", &f0, 1.0f, 100.0f, "%.3f");
+
+        if (clicked & 1)
+        {
+            ImGui::Text("Eroding Mesh!");
+            if (f0 > 0.0f)
+                erode_mesh(f0);
+            clicked = 0;
+        }
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Generation")) {
+        ImGui::Text("Eroding Mesh!");
+        ImGui::TreePop();
+        
+        if (image_id != 0) {
+            ImTextureID id = &image_id;
+            ImGui::Image(id, ImVec2(256, 256));
+
+        }
+        // Displpay perlin texture
+        //
+        // ImTextureID my_tex_id = io.Fonts->TexID;
+        // float my_tex_w = (float)io.Fonts->TexWidth;
+        // float my_tex_h = (float)io.Fonts->TexHeight;
+        // ImGui::Text("%.0fx%.0f", my_tex_w, my_tex_h);
+        // ImVec2 pos = ImGui::GetCursorScreenPos();
+        // ImGui::Image(my_tex_id, ImVec2(my_tex_w, my_tex_h), ImVec2(0,0), 
+        //    ImVec2(1,1), ImColor(255,255,255,255), ImColor(255,255,255,128));
+    }
+    ImGui::End();
+}
