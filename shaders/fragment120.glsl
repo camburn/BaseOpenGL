@@ -7,9 +7,9 @@ varying vec3 f_normal;
 uniform vec4 u_color;
 
 uniform float wire_width = 1.5;
-uniform vec3 light_pos = vec3(1.0, 5.0, 1.0);
+uniform vec3 light_pos = vec3(1.0, 10.0, 1.0);
 uniform vec3 light_color = vec3(1.0, 1.0, 1.0);
-uniform vec3 ambient = vec3(0.25, 0.25, 0.25);
+uniform vec3 ambient = vec3(0.2, 0.2, 0.2);
 
 
 float edgeFactor(){
@@ -30,10 +30,10 @@ void main(){
     float steepness = acos(dot(norm, vec3(0.0f, 1.0f, 0.0f)));
 
     vec3 out_color = vec3(0.0f, 0.0f, 0.0f);
-    if (steepness > 0.9) {
+    if (steepness > 0.7) {
         out_color =  vec3(0.3, 0.3, 0.3);
-    } else if (steepness > 0.5f) {
-        out_color =  vec3(0.1, 0.5, 0.1);
+    //} else if (steepness > 0.5f) {
+    //    out_color =  vec3(0.1, 0.5, 0.1);
     } else {
         out_color =  vec3(0.05, 0.2, 0.05);
     }

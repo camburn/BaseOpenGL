@@ -29,33 +29,31 @@ public:
     unsigned char r, b, g, a;
 };
 
-class Texture {
-public:
-    Texture(std::string name, int size, GLuint texture_id) : name(name), size(size), texture_id(texture_id) {}
-    GLuint texture_id;
-    std::string name;
-    const int size;
-
-private:
-
-};
-
 //template < int ARRAY_LEN >
 class Noise{
 public:
     Noise(): data(new Color[1]) {}
-    Noise(int size, FastNoise noise, float weight) : size(size), noise(noise), weight(weight), data(new Color[size * size]) {}
+    Noise(int size, FastNoise noise, float weight) : size(size), data(new Color[size * size]), weight(weight), noise(noise) {}
     ~Noise() { } //TODO: Memory leak - data
     float GetNoise(int x, int y) { return noise.GetNoise(x, y); }
 
-    Color *data;
     int size;
-    //std::array<Color, size>
+    Color *data;
     float weight;
     bool added_image = false;
 private:
     FastNoise noise;
-    
+};
+
+class Texture {
+public:
+    Texture(std::string name, int size, GLuint texture_id) : name(name), texture_id(texture_id), size(size) {}
+    std::string name;
+    GLuint texture_id;
+    int size;
+    Noise *noise;
+private:
+
 };
 
 class Terrain {

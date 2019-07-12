@@ -94,11 +94,11 @@ void Terrain::preview_image(FastNoise noise) {
         BufferTextureDataRGB((unsigned char *)image_data, size, size)
     };
 
-    delete image_data;
+    delete []image_data;
 }
 
 void Terrain::add_image(FastNoise noise) {
-    //noises.push_back(noise);
+
 }
 
 void Terrain::generate_mesh() {
@@ -108,34 +108,7 @@ void Terrain::generate_mesh() {
 
     calc_brush_indices(size, 3);
 
-    const int seed = 1337;
-    const int octaves = 1;
-
-
     std::cout << "Generating mesh data" << std::endl;
-    /*
-    FastNoise big_noise;
-    big_noise.SetNoiseType(FastNoise::SimplexFractal);
-    big_noise.SetInterp(FastNoise::Quintic);
-    big_noise.SetFrequency(0.003f);
-    big_noise.SetSeed(seed);
-    big_noise.SetFractalGain(0.5f);
-    big_noise.SetFractalLacunarity(2.0f);
-    big_noise.SetFractalOctaves(octaves);
-    Color *image_data_big = new Color[size*size];
-    
-
-    FastNoise small_noise;
-    small_noise.SetNoiseType(FastNoise::SimplexFractal);
-    small_noise.SetInterp(FastNoise::Quintic);
-    small_noise.SetFrequency(0.02f);
-    small_noise.SetSeed(seed);
-    small_noise.SetFractalGain(0.3f);
-    small_noise.SetFractalLacunarity(2.0f);
-    small_noise.SetFractalOctaves(8);
-5
-    /std::vector<glm::vec3*> raw_data;
-    */
 
     data = new glm::vec3[size * size];
     Color *image_data_combined = new Color[size*size];
@@ -149,7 +122,6 @@ void Terrain::generate_mesh() {
                 float sample = noise.GetNoise(x, y);
                 float scaled = (sample + 1.0f) / 2;
                 float weighted = scaled * noise.weight;
-                unsigned char red, green, blue = (unsigned char)(scaled * 255);
 
                 noise.data[y * size + x] = Color((unsigned char)(scaled * 255));
                 image_data_combined[y * size + x] = Color((unsigned char)(weighted * 255));
@@ -157,59 +129,21 @@ void Terrain::generate_mesh() {
             }
 
             data[y * size + x] = glm::vec3{ (float)x, height, (float)y };
-            /*
-
-            float sample_big = big_noise.GetNoise(x, y);
-            float sample_small = small_noise.GetNoise(x, y);
-            float scaled_big = (sample_big + 1.0f) / 2;
-            float scaled_small = (sample_small + 1.0f) / 2;
-            float height = (scaled_big * 0.9) + (scaled_small * 0.1);
-
-            
-            unsigned char red = (unsigned char)(scaled_small * 255);
-            unsigned char green = (unsigned char)(scaled_small * 255);
-            unsigned char blue = (unsigned char)(scaled_small * 255);
-
-            image_data[y * size + x] = Color(red, green, blue);
-
-            red = (unsigned char)(scaled_big * 255);
-            green = (unsigned char)(scaled_big * 255);
-            blue = (unsigned char)(scaled_big * 255);
-            image_data_big[y * size + x] = Color(red, green, blue);
-
-            red = (unsigned char)(height * 255);
-            green = (unsigned char)(height * 255);
-            blue = (unsigned char)(height * 255);
-            image_data_combined[y * size + x] = Color(red, green, blue);
-            */
         }
     }
 
-    for (auto noise : noises) {
+    for (auto &noise : noises) {
         //TODO: Can add the same image!
         if (!noise.added_image) {
+            noise.added_image = true;
             images.emplace_back("Small features", size,
                 BufferTextureDataRGB((unsigned char *)noise.data, size, size)
             );
-            noise.added_image = true;
+            images.back().noise = &noise;
         }
     }
-    /*
-    images.emplace_back("Small features", size, 
-        BufferTextureDataRGB((unsigned char *)image_data, size, size)
-    );
 
-    images.emplace_back("Large features", size,
-        BufferTextureDataRGB((unsigned char *)image_data_big, size, size)
-    );
-
-    images.emplace_back("Combined", size,
-        BufferTextureDataRGB((unsigned char *)image_data_combined, size, size)
-    );
-
-    delete image_data_big;
-    */
-    delete image_data_combined;
+    delete []image_data_combined;
 }
 
 void Terrain::buffer_data() {
@@ -297,8 +231,8 @@ void Terrain::interface() {
         }
         ImGui::Text("Terrain Controls description");
         if (ImGui::TreeNode("Erosion")) {
-            ImGui::Text("Total Iterations ", std::to_string(erosian_iterations).c_str());
-            ImGui::Text("Total noises ", std::to_string(noises.size()).c_str());
+            ImGui::LabelText("Total Iterations", "%s", std::to_string(erosian_iterations).c_str());
+            ImGui::LabelText("Total noises", "%s", std::to_string(noises.size()).c_str());
 
             if (ImGui::Button("Erode"))
                 clicked++;
@@ -317,13 +251,24 @@ void Terrain::interface() {
         if (ImGui::TreeNode("Generation")) {
             ImGui::Text("Texture base hightmaps");
             
-            int counter = 1;
+            int counter = 0;
+            int image_to_delete = -1;
             for (auto i: images) {
                 if (ImGui::TreeNode(i.name.c_str())) {
-                    ImGui::Image((void*)(intptr_t)i.texture_id, ImVec2(256, 256));
+                    if (ImGui::Button("Delete")) {
+                        image_to_delete = counter;
+                        delete[] i.noise->data;
+                        //TODO: Delete noise
+
+                    }
+                    ImGui::LabelText("Weight", "%s", std::to_string(i.noise->weight).c_str());
+                    ImGui::Image((void*)(intptr_t)i.texture_id, ImVec2(128, 128));
                     ImGui::TreePop();
                 }
                 counter++;
+            }
+            if (image_to_delete > 0) {
+                images.erase(images.begin() + image_to_delete);
             }
             
             ImGui::TreePop();
@@ -340,7 +285,6 @@ void Terrain::interface() {
         static int seed = 1337;
         static float fractal_gain = 0.3f;
         static float fractal_lacunarity = 2.0f;
-        static FastNoise::NoiseType noise_type = FastNoise::SimplexFractal;
         if (!ImGui::Begin("Texture Generator", &p_texture_gen_open, 0)) {
             ImGui::End();
             return;

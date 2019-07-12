@@ -1,9 +1,8 @@
 #include "erode.hpp"
 
-const int EROSION_RADIUS = 3;
 const float INITIAL_SPEED = 1.0f;
 const float INITIAL_WATER_VOLUME = 1.0f;
-const float MAX_DROPLET_LIFETIME = 30.0f;
+const float MAX_DROPLET_LIFETIME = 50.0f;
 const float ERODE_SPEED = 0.3f;
 const float DEPOSIT_SPEED = 0.3f;
 const float EVAPORATE_SPEED = 0.01f;
@@ -13,7 +12,7 @@ const float MIN_SEDIMENT_CAPACITY = 0.1f;
 const float GRAVITY = 4.0f;
 
 class HeightAndGradient{
-public:
+    public:
     float height;
     float gradient_x;
     float gradient_y;
@@ -179,68 +178,3 @@ void erode(glm::vec3 data[], int size, const int iterations) {
         }
     }
 }
-
-/*
-int main() {
-    std::cout << "Random" << std::endl;
-
-    Image image(512, 512);
-    Image image2(512, 512);
-    V3 data[512][512];
-
-    const int seed = 1337;
-    const int octaves = 1;
-
-    FastNoise myNoise;
-    myNoise.SetNoiseType(FastNoise::SimplexFractal);
-    myNoise.SetInterp(FastNoise::Quintic);
-    myNoise.SetFrequency(0.005);
-    myNoise.SetSeed(seed);
-    myNoise.SetFractalGain(0.5f);
-    myNoise.SetFractalLacunarity(2.0f);
-    myNoise.SetFractalOctaves(octaves);
-
-    FastNoise smallNoise;
-    smallNoise.SetNoiseType(FastNoise::SimplexFractal);
-    smallNoise.SetInterp(FastNoise::Quintic);
-    smallNoise.SetFrequency(0.02);
-    smallNoise.SetSeed(seed);
-    smallNoise.SetFractalGain(0.5f);
-    smallNoise.SetFractalLacunarity(2.0f);
-    smallNoise.SetFractalOctaves(4);
-
-    for (int y = 0; y < image.height(); ++y)
-    {
-        for (int x = 0; x < image.width(); ++x)
-        {
-            float sample = myNoise.GetNoise(x, y);
-            float b = smallNoise.GetNoise(x, y);
-            float scaled = (sample + 1.0f) / 2;
-            float b_scaled = (b + 1.0f) / 2;
-            float total = (scaled * 0.75) + (b_scaled * 0.25);
-            const RGB color(total);
-            const RGB colorb(b_scaled);
-
-            image.set(x, y, color);
-            image2.set(x, y, colorb);
-            data[x][y] = V3{(float)x, (float)y, total};
-        }
-    }
-    erode(data, 1);
-
-    std::stringstream ss;
-    ss << "noise" << ".bmp";
-    if (image.saveBMP(ss.str()))
-    {
-        std::cout << "...saved \"" << ss.str() << "\"\n";
-    }
-    else
-    {
-        std::cout << "...failed\n";
-    }
-    std::stringstream ssb;
-    ssb << "small" << ".bmp";
-    image2.saveBMP(ssb.str());
-    return 0;
-}
- */
